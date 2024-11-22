@@ -1,7 +1,9 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { gantt } from "dhtmlx-gantt";
 import 'dhtmlx-gantt/codebase/dhtmlxgantt.css';
 import './index.less'
+import { Button, Space } from 'antd';
+
 
 const GanttView = () => {
   let container = useRef();
@@ -57,6 +59,7 @@ const GanttView = () => {
       parent: 0
     }
   ]
+  const [currentZoom, setCurrentZoom] = useState('day') //当前时间范围
 
   const tasks = {
     data: [
@@ -173,9 +176,9 @@ const GanttView = () => {
               const day = date.getDate();
               const weekDay = date.getDay();
               return `<div class='date-box'>
-              <span class='day'>${day}</span>
-              <span class='week-day'>${weekDays[weekDay]}</span>
-              </div>`;
+          <div class='day'>${day}</div>
+          <div class='weekDay'>${weekDays[weekDay]}</div>
+          </div>`;
             },
           },
         ],
@@ -184,10 +187,10 @@ const GanttView = () => {
         name: "week",
         label: "周",
         scale_height: 50,
-        min_column_width: 50,
+        min_column_width: 80,
         scales: [
-          { unit: "month", format: "%Y年 %F" },
-          { unit: "week", step: 1, date: "%W周" },
+          { unit: "month", format: "%Y年" },
+          { unit: "week", step: 1, date: "第%W周" },
         ],
       },
       {
@@ -196,19 +199,19 @@ const GanttView = () => {
         scale_height: 50,
         min_column_width: 50,
         scales: [
-          { unit: "year", step: 1, format: "%Y年" },
+          // { unit: "year", step: 1, format: "%Y年" },
           {
             unit: "quarter",
             step: 1,
             format: (date) => {
-              const year = new Date(date).getFullYear();
-              const month = new Date(date).getMonth();
+              const year = date.getFullYear();
+              const month = date.getMonth();
               const quarter = Math.floor(month / 3 + 1);
-              return `${year}年-Q${quarter}`;
+              return `${year}年Q${quarter}`;
               // return `Q${quarter}`;
             },
           },
-          { unit: "month", step: 1, format: "%F" },
+          { unit: "month", step: 1, format: "%n月" },
         ],
       },
       {
@@ -222,10 +225,8 @@ const GanttView = () => {
             unit: "quarter",
             step: 1,
             format: (date) => {
-              // const year = new Date(date).getFullYear();
-              const month = new Date(date).getMonth();
+              const month = date.getMonth();
               const quarter = Math.floor(month / 3 + 1);
-              // return `${year}年-Q${quarter}`;
               return `Q${quarter}`;
             },
           },
@@ -239,6 +240,9 @@ const GanttView = () => {
         scales: [{ unit: "year", step: 1, format: "%Y年" }],
       },
     ],
+    // element: () => {
+    //   return gantt.$root.querySelector(".gantt_task");
+    // },
   }
 
   const setZoomConfig = () => {
@@ -246,27 +250,30 @@ const GanttView = () => {
     gantt.ext.zoom.setLevel("day");
   }
 
+  const handleChangeZoom = (zoom) => {
+    setCurrentZoom(zoom);
+    gantt.ext.zoom.setLevel(zoom);
+  }
 
-  // const zoomButton = ()=>{
-  //     return (
-  //       <div style={{ marginBottom: 12 }}>
-  //         {zoomLevels.map((item) => {
-  //           return (
-  //             <Button
-  //               type="primary"
-  //               disabled={item.name === curZoom}
-  //               onClick={() => {
-  //                 handleChangeZoom(item.name);
-  //               }}
-  //               style={{ marginRight: 6 }}
-  //             >
-  //               {item.label}
-  //             </Button>
-  //           );
-  //         })}
-  //       </div>
-  //     );
-  // }
+
+  const changeZoom = () => {
+    return (
+      <Space style={{ marginBottom: 12 }}>
+        {zoomConfig.levels.map((item) => {
+          return (
+            <Button
+              type={item.name === currentZoom ? "" : "primary"}
+              onClick={() => {
+                handleChangeZoom(item.name);
+              }}
+            >
+              {item.label}
+            </Button>
+          );
+        })}
+      </Space>
+    );
+  }
 
 
 
@@ -281,7 +288,10 @@ const GanttView = () => {
     };
   }, []);
   return (
-    <div className='gantt-box' ref={container} style={{ width: "100%", height: "100%" }}></div>
+    <div className='all-box'>
+      {changeZoom()}
+      <div className='gantt-box' ref={container} style={{ width: "100%", height: "100%" }}></div>
+    </div>
   );
 }
 export default GanttView
