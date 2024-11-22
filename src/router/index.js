@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import Layout from '../pages/layout'
 import Home from '../pages/home'
-import Mail from '../pages/mail'
+import Project from '../pages/project'
 import User from '../pages/user'
 import Login from '../pages/login'
 import Interactive from '@/pages/interactive'
@@ -22,8 +22,8 @@ const routes = [
         Component: Home
       },
       {
-        path: 'mail',
-        Component: Mail
+        path: 'project',
+        Component: Project
       },
       {
         path: 'interactive',

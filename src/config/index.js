@@ -7,11 +7,11 @@ const menuList = [
     url: '/home/index'
   },
   {
-    path: '/mail',
-    name: 'mail',
+    path: '/project',
+    name: 'project',
     label: '项目管理',
     icon: 'FundProjectionScreenOutlined',
-    url: '/mail/index'
+    url: '/project/index'
   },
   {
     path: '/interactive',

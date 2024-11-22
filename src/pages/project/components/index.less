@@ -1,0 +1,84 @@
+.gantt-box {
+  height: 100% !important;
+
+  .gantt_layout_root {
+    height: 100% !important;
+    width: 100% !important;
+
+    .gantt_layout_cell_border_right {
+      height: 100% !important;
+
+      .gantt_layout_cell_border_transparent {
+        height: calc(100% - 15px) !important;
+
+        .gantt_layout_content {
+
+          .gantt_grid_scale {
+            height: 85px !important;
+          }
+        }
+
+      }
+    }
+
+    .gantt_layout_y:last-child {
+      height: 100% !important;
+      width: calc(100% - 400px) !important;
+    }
+
+    .gantt_layout_cell {
+
+      .timeline_cell {
+        height: calc(100% - 15px) !important;
+        width: 100% !important;
+
+        .gantt_layout_content {
+          .gantt_task_scale {
+            height: 85px !important;
+
+            .gantt_scale_line {
+
+              .gantt_scale_cell {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                span {
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+
+                  .date-box {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+
+                    .day,
+                    .week-day {
+                      height: 16px;
+                    }
+                  }
+                }
+              }
+            }
+
+            .gantt_scale_line:last-child {
+              height: 50px !important;
+            }
+          }
+        }
+      }
+
+      .scrollTime_cell {
+        width: 100% !important;
+
+        .gantt_layout_content {
+          .gantt_hor_scroll {
+            width: 100% !important;
+          }
+        }
+      }
+    }
+  }
+}
