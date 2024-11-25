@@ -59,25 +59,195 @@ const GanttView = () => {
       parent: 0
     }
   ]
+  const curZoomRef = useRef()
   const [currentZoom, setCurrentZoom] = useState('day') //当前时间范围
 
   const tasks = {
     data: [
       {
         id: "10",
-        text: "Project #1",
-        start_date: "2025-01-02",
+        text: "第一周",
+        start_date: "2024-11-01",
+        end_date: "2024-11-09",
         duration: 3,
-        order: 10,
+        order: '1',
+        progress: 1,
+        open: true,
+      },
+      {
+        id: "10-1",
+        text: "硬件：完成拉曼系统选型，复刻三轴平台,发起采购",
+        start_date: "2024-11-01",
+        // end_date: "2024-11-09",
+        duration: 3,
+        order: '1.1',
+        progress: 1,
+        parent: "10",
+      },
+      {
+        id: "10-2",
+        text: "软件：数据系统V1.0,基础数据库结构，数据加密和传输方案",
+        start_date: "2024-11-06",
+        // end_date: "2024-11-09",
+        duration: 2,
+        order: '1.2',
+        progress: 1,
+        parent: "10",
+      },
+      {
+        id: "10-3",
+        text: "算法：质控流程V1.0,外太空粒子干扰，无效数据筛选第一版本",
+        start_date: "2024-11-08",
+        // end_date: "2024-11-09",
+        duration: 1,
+        order: '1.3',
+        progress: 1,
+        parent: "10",
+      },
+      {
+        id: "11",
+        text: "第二周",
+        start_date: "2024-11-11",
+        end_date: "2024-11-16",
+        duration: 3,
+        order: '2',
         progress: 0.4,
+        open: true,
+      },
+      {
+        id: "11-1",
+        text: "硬件：质控流程V1.0实验测试，三轴平台升级版方案确定",
+        start_date: "2024-11-11",
+        end_date: "2024-11-16",
+        duration: 1,
+        order: '2.1',
+        progress: 0.6,
+        parent: "11",
+      },
+      {
+        id: "11-2",
+        text: "软件：硬件SDK接入采样系统, 拉曼采样软件预研版更新",
+        start_date: "2024-11-11",
+        end_date: "2024-11-16",
+        duration: 1,
+        order: '2.2',
+        progress: 0.6,
+        parent: "11",
+      },
+      {
+        id: "11-3",
+        text: "算法：数据预处理流程V1.0,信噪比提升，荧光背景去除，数据标准化处理",
+        start_date: "2024-11-11",
+        end_date: "2024-11-16",
+        duration: 1,
+        order: '2.3',
+        progress: 0.6,
+        parent: "11",
+      },
+      {
+        id: "12",
+        text: "第三周",
+        start_date: "2024-11-18",
+        end_date: "2024-11-23",
+        duration: 3,
+        order: '3',
+        progress: 0.4,
+        open: true,
+      },
+      {
+        id: "12-1",
+        text: "硬件：软硬件联调第一阶段,实验流程标准化方案V1.0（太初一版），标准模板四角定位校准",
+        start_date: "2024-11-18",
+        end_date: "2024-11-23",
+        duration: 1,
+        order: '3.1',
+        progress: 0.6,
+        parent: "12",
+      },
+      {
+        id: "12-2",
+        text: "软件：拉曼采样软件预研版测试，加入质控流程和数据预处理算法",
+        start_date: "2024-11-18",
+        end_date: "2024-11-23",
+        duration: 1,
+        order: '3.2',
+        progress: 0.6,
+        parent: "12",
+      },
+      {
+        id: "12-3",
+        text: "算法：算法接入软件的辅助开发",
+        start_date: "2024-11-18",
+        end_date: "2024-11-23",
+        duration: 1,
+        order: '3.3',
+        progress: 0.6,
+        parent: "12",
+      },
+      {
+        id: "13",
+        text: "第四周",
+        start_date: "2024-11-25",
+        end_date: "2024-11-30",
+        duration: 3,
+        order: '4',
+        progress: 0.4,
+        open: true,
+      },
+      {
+        id: "13-1",
+        text: "硬件：软硬件联调第一阶段,实验流程标准化方案V1.0（太初一版），交付V1样机",
+        start_date: "2024-11-25",
+        end_date: "2024-11-30",
+        duration: 1,
+        order: '4.1',
+        progress: 0.6,
+        parent: "13",
+      },
+      {
+        id: "13-2",
+        text: "软件：拉曼采样软件预研版测试，加入质控流程和数据预处理算法，交付V1样机",
+        start_date: "2024-11-25",
+        end_date: "2024-11-30",
+        duration: 1,
+        order: '4.2',
+        progress: 0.6,
+        parent: "13",
+      },
+      {
+        id: "13-3",
+        text: "算法：算法接入软件的辅助开发，交付V1样机",
+        start_date: "2024-11-25",
+        end_date: "2024-11-30",
+        duration: 1,
+        order: '4.3',
+        progress: 0.6,
+        parent: "13",
+      },
+    ],
+    links: [
+      { id: "1", source: "10-1", target: "10-2", type: "0" },
+      { id: "2", source: "10-2", target: "10-3", type: "0" }
+    ],
+  }
+
+  const testData = {
+    data: [
+      {
+        id: "10",
+        text: "Project #1",
+        start_date: "2024-11-02",
+        duration: 3,
+        order: '1',
+        progress: 1,
         open: true,
       },
       {
         id: "1",
         text: "Task #1",
-        start_date: "2025-01-04",
+        start_date: "2024-11-04",
         duration: 1,
-        order: 10,
+        order: '1.1',
         progress: 0.6,
         parent: "10",
       },
@@ -86,7 +256,7 @@ const GanttView = () => {
         text: "Task #2",
         start_date: "2025-02-05",
         duration: 2,
-        order: 20,
+        order: '1.2',
         progress: 0.6,
         parent: "10",
       },
@@ -95,7 +265,7 @@ const GanttView = () => {
         text: "Project #2",
         start_date: "2025-04-02",
         duration: 3,
-        order: 10,
+        order: '2',
         progress: 0.4,
         open: true,
       },
@@ -137,7 +307,7 @@ const GanttView = () => {
           ],
         },
         // { resizer: true, width: 1 },
-        //右侧时间轴
+        //右侧时间轴(甘特图区)
         {
           rows: [
             { view: "timeline", scrollX: "scrollTime", scrollY: "scrollVer" },
@@ -147,6 +317,21 @@ const GanttView = () => {
         { view: "scrollbar", id: "scrollVer" },
       ],
     }
+
+    // 设置时间列的 class 类名，配置禁用日期的样式
+    gantt.templates.timeline_cell_class = (task, date) => {
+      const disableDate = ["month", "year", "quarter", 'week'].includes(curZoomRef.current);
+
+      if (!disableDate && !gantt.isWorkTime(date)) return "weekend";
+      return "";
+    };
+
+    // 设置 任务的 class 类名，用于配置 任务完成时的 样式
+    gantt.templates.task_class = (start, end, task) => {
+      if (task.progress === 1)
+        return "completed_task";
+      return "";
+    };
   }
 
   const zoomConfig = {
@@ -245,6 +430,113 @@ const GanttView = () => {
     // },
   }
 
+  const columns = [
+    {
+      name: "add",
+      width: 44,
+      align: "center",
+    },
+    {
+      type: "input",
+      name: "order",
+      label: "项目序号",
+      tree: true,
+      min_width: 100,
+    },
+    // {
+    //   type: null,
+    //   name: "code",
+    //   label: "项目序号",
+    //   hide: true,
+    // },
+    {
+      type: "input",
+      name: "text",
+      label: "项目名称",
+      // tree: true,
+      min_width: 200,
+      width: 200
+    },
+    // {
+    //   type: "input",
+    //   name: "task_user",
+    //   label: "负责人",
+    //   width: 100,
+    //   min_width: 100,
+    //   align: "center",
+    // },
+    // {
+    //   type: "select",
+    //   name: "parent",
+    //   hide: true,
+    //   label: "父任务",
+    // },
+    // {
+    //   type: "select",
+    //   name: "pre_task",
+    //   hide: true,
+    //   label: "前置任务",
+    // },
+    {
+      type: "date",
+      name: "start_date",
+      label: "开始日期",
+      align: "center",
+      min_width: 100,
+      // min_width: 80,
+    },
+    // {
+    //   type: "number",
+    //   name: "duration",
+    //   label: "持续时间",
+    //   align: "center",
+    //   min: 1,
+    //   formatType: "date",
+    // },
+    {
+      type: "date",
+      name: "end_date",
+      label: "结束时间",
+      align: "center",
+      min_width: 100,
+      // onrender: (task, node) => {
+      //   console.log(1111, task, task.end_date)
+      //   node.innerText = task.end_date
+      // }
+    },
+    // {
+    //   type: "slider",
+    //   name: "progress",
+    //   originField: "progress",
+    //   label: "进度",
+    //   width: 80,
+    //   align: "center",
+    //   template: (item) => {
+    //     if (item.progress >= 1) return "Complete";
+    //     if (item.progress === 0) return "Not started";
+    //     const num = `${Math.round(item.progress * 100)}%`;
+    //     return num;
+    //   },
+    // },
+    // {
+    //   type: "select",
+    //   name: "task_status",
+    //   originField: "task_status",
+    //   align: "center",
+    //   label: "任务状态",
+    //   options: [
+    //     {
+    //       value: "continue",
+    //       label: "未完成",
+    //     },
+    //     {
+    //       value: "finish",
+    //       label: "完成",
+    //     },
+    //   ],
+    // },
+  ]
+
   const setZoomConfig = () => {
     gantt.ext.zoom.init(zoomConfig);
     gantt.ext.zoom.setLevel("day");
@@ -252,9 +544,19 @@ const GanttView = () => {
 
   const handleChangeZoom = (zoom) => {
     setCurrentZoom(zoom);
+    curZoomRef.current = zoom
     gantt.ext.zoom.setLevel(zoom);
   }
 
+  const nowDateMarker = () => {
+    const dateToStr = gantt.date.date_to_str(gantt.config.task_date);
+    gantt.addMarker({
+      start_date: new Date(),
+      css: "today",
+      text: "今日",
+      title: dateToStr(new Date()),
+    });
+  }
 
   const changeZoom = () => {
     return (
@@ -280,8 +582,10 @@ const GanttView = () => {
   useEffect(() => {
     basicConfig()
     setZoomConfig()
+    nowDateMarker()
+    gantt.config.columns = columns;
     gantt.init(container.current);
-    gantt.parse(tasks);
+    gantt.parse(testData);
 
     return () => {
       // gantt.destructor();
