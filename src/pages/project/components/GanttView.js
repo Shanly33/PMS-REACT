@@ -2,11 +2,14 @@ import React, { useEffect, useRef, useState } from 'react'
 import { gantt } from "dhtmlx-gantt";
 import 'dhtmlx-gantt/codebase/dhtmlxgantt.css';
 import './index.less'
-import { Button, Space } from 'antd';
+import { Button, Modal, Form, message, Menu, Dropdown, Divider, Space } from "antd";
+import ReactDOM from 'react-dom';
 
 
 const GanttView = () => {
   let container = useRef();
+  const uuid = useRef(crypto.randomUUID()); // 给新增任务做标识
+  const treeMap = useRef({}); // 记录树的父级包含的子级顺序的映射
   const data = [
     {
       id: "1",
@@ -61,6 +64,7 @@ const GanttView = () => {
   ]
   const curZoomRef = useRef()
   const [currentZoom, setCurrentZoom] = useState('day') //当前时间范围
+  const [addType, setAddType] = useState("");
 
   const tasks = {
     data: [
@@ -310,7 +314,7 @@ const GanttView = () => {
         //右侧时间轴(甘特图区)
         {
           rows: [
-            { view: "timeline", scrollX: "scrollTime", scrollY: "scrollVer" },
+            { view: "timeline", scrollX: "scrollTime", },
             { view: "scrollbar", id: "scrollTime", group: "horizontal" },
           ],
         },
@@ -331,6 +335,18 @@ const GanttView = () => {
       if (task.progress === 1)
         return "completed_task";
       return "";
+    };
+
+    // 配置 可以让表格渲染 用 react 组件
+    gantt.config.external_render = {
+      // checks the element is a React element
+      isElement: (element) => {
+        return React.isValidElement(element);
+      },
+      // renders the React element into the DOM
+      renderElement: (element, container) => {
+        ReactDOM.render(element, container);
+      },
     };
   }
 
@@ -430,19 +446,80 @@ const GanttView = () => {
     // },
   }
 
+  const handleAdd = (e, task) => {
+    const id = uuid.current;
+    console.log(123, id)
+    const tempTask = {
+      id,
+    };
+    uuid.current = id;
+    const index = treeMap.current[task.parent].findIndex(
+      (item) => item.id === task.id
+    );
+
+    if (e.key === "add-bro") {
+      // 创建任务，在当前任务的下一个位置
+      gantt.createTask(
+        tempTask,
+        task.parent !== 0 ? task.parent : undefined,
+        index + 1
+      );
+    }
+
+  }
+
+  const options = [
+    {
+      key: "add-bro",
+      label: "新增本级",
+    },
+    {
+      key: "add-child",
+      label: "新增子级",
+    },
+    {
+      key: "delete",
+      label: "删除",
+    },
+  ];
+
   const columns = [
-    {
-      name: "add",
-      width: 44,
-      align: "center",
-    },
-    {
-      type: "input",
-      name: "order",
-      label: "项目序号",
-      tree: true,
-      min_width: 100,
-    },
+    // {
+    //   name: "add",
+    //   width: 44,
+    //   align: "center",
+    //   // onrender: (task) => {
+    //   //   return (
+    //   //     <Dropdown
+    //   //       overlay={
+    //   //         <Menu
+    //   //           className="operation-menu-wrapper"
+    //   //           onClick={(e) => {
+    //   //             handleAdd(e, task);
+    //   //           }}
+    //   //         >
+    //   //           {options.map((item) => {
+    //   //             return (
+    //   //               <Menu.Item key={item.key} className={item.key}>
+    //   //                 {item.label}
+    //   //               </Menu.Item>
+    //   //             )
+    //   //           })}
+    //   //         </Menu>
+    //   //       }
+    //   //     >
+    //   //       <div className="add-icon"> + </div>
+    //   //     </Dropdown>
+    //   //   );
+    //   // }
+    // },
+    // {
+    //   type: "input",
+    //   name: "order",
+    //   label: "项目序号",
+    //   tree: true,
+    //   min_width: 100,
+    // },
     // {
     //   type: null,
     //   name: "code",
@@ -453,7 +530,7 @@ const GanttView = () => {
       type: "input",
       name: "text",
       label: "项目名称",
-      // tree: true,
+      tree: true,
       min_width: 200,
       width: 200
     },
@@ -585,7 +662,7 @@ const GanttView = () => {
     nowDateMarker()
     gantt.config.columns = columns;
     gantt.init(container.current);
-    gantt.parse(testData);
+    gantt.parse(tasks);
 
     return () => {
       // gantt.destructor();
