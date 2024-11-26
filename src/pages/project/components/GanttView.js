@@ -10,6 +10,12 @@ const GanttView = () => {
   let container = useRef();
   const uuid = useRef(crypto.randomUUID()); // 给新增任务做标识
   const treeMap = useRef({}); // 记录树的父级包含的子级顺序的映射
+  const curZoomRef = useRef()
+  const [currentZoom, setCurrentZoom] = useState('day') //当前时间范围
+  const [addType, setAddType] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [task, setTask] = useState(null);
+
   const data = [
     {
       id: "1",
@@ -62,9 +68,6 @@ const GanttView = () => {
       parent: 0
     }
   ]
-  const curZoomRef = useRef()
-  const [currentZoom, setCurrentZoom] = useState('day') //当前时间范围
-  const [addType, setAddType] = useState("");
 
   const tasks = {
     data: [
@@ -122,8 +125,8 @@ const GanttView = () => {
         id: "11-1",
         text: "硬件：质控流程V1.0实验测试，三轴平台升级版方案确定",
         start_date: "2024-11-11",
-        end_date: "2024-11-16",
-        duration: 1,
+        // end_date: "2024-11-16",
+        duration: 2,
         order: '2.1',
         progress: 0.6,
         parent: "11",
@@ -131,9 +134,9 @@ const GanttView = () => {
       {
         id: "11-2",
         text: "软件：硬件SDK接入采样系统, 拉曼采样软件预研版更新",
-        start_date: "2024-11-11",
-        end_date: "2024-11-16",
-        duration: 1,
+        start_date: "2024-11-13",
+        // end_date: "2024-11-16",
+        duration: 2,
         order: '2.2',
         progress: 0.6,
         parent: "11",
@@ -141,9 +144,9 @@ const GanttView = () => {
       {
         id: "11-3",
         text: "算法：数据预处理流程V1.0,信噪比提升，荧光背景去除，数据标准化处理",
-        start_date: "2024-11-11",
-        end_date: "2024-11-16",
-        duration: 1,
+        start_date: "2024-11-14",
+        // end_date: "2024-11-16",
+        duration: 2,
         order: '2.3',
         progress: 0.6,
         parent: "11",
@@ -162,7 +165,7 @@ const GanttView = () => {
         id: "12-1",
         text: "硬件：软硬件联调第一阶段,实验流程标准化方案V1.0（太初一版），标准模板四角定位校准",
         start_date: "2024-11-18",
-        end_date: "2024-11-23",
+        // end_date: "2024-11-23",
         duration: 1,
         order: '3.1',
         progress: 0.6,
@@ -171,9 +174,9 @@ const GanttView = () => {
       {
         id: "12-2",
         text: "软件：拉曼采样软件预研版测试，加入质控流程和数据预处理算法",
-        start_date: "2024-11-18",
-        end_date: "2024-11-23",
-        duration: 1,
+        start_date: "2024-11-19",
+        // end_date: "2024-11-23",
+        duration: 2,
         order: '3.2',
         progress: 0.6,
         parent: "12",
@@ -181,9 +184,9 @@ const GanttView = () => {
       {
         id: "12-3",
         text: "算法：算法接入软件的辅助开发",
-        start_date: "2024-11-18",
-        end_date: "2024-11-23",
-        duration: 1,
+        start_date: "2024-11-20",
+        // end_date: "2024-11-23",
+        duration: 3,
         order: '3.3',
         progress: 0.6,
         parent: "12",
@@ -202,8 +205,8 @@ const GanttView = () => {
         id: "13-1",
         text: "硬件：软硬件联调第一阶段,实验流程标准化方案V1.0（太初一版），交付V1样机",
         start_date: "2024-11-25",
-        end_date: "2024-11-30",
-        duration: 1,
+        // end_date: "2024-11-30",
+        duration: 5,
         order: '4.1',
         progress: 0.6,
         parent: "13",
@@ -211,9 +214,9 @@ const GanttView = () => {
       {
         id: "13-2",
         text: "软件：拉曼采样软件预研版测试，加入质控流程和数据预处理算法，交付V1样机",
-        start_date: "2024-11-25",
-        end_date: "2024-11-30",
-        duration: 1,
+        start_date: "2024-11-28",
+        // end_date: "2024-11-30",
+        duration: 2,
         order: '4.2',
         progress: 0.6,
         parent: "13",
@@ -221,9 +224,9 @@ const GanttView = () => {
       {
         id: "13-3",
         text: "算法：算法接入软件的辅助开发，交付V1样机",
-        start_date: "2024-11-25",
-        end_date: "2024-11-30",
-        duration: 1,
+        start_date: "2024-11-28",
+        // end_date: "2024-11-30",
+        duration: 2,
         order: '4.3',
         progress: 0.6,
         parent: "13",
@@ -279,19 +282,23 @@ const GanttView = () => {
 
   //基础样式配置
   const basicConfig = () => {
+    gantt.clearAll() // 清空之前的配置
     gantt.i18n.setLocale("cn");				                   // 语言
     gantt.config.date_format = "%Y-%m-%d %H:%i";		     // 日期格式转换
     gantt.config.row_height = 32;	                       // 行高
     // gantt.config.grid_width = 800
     gantt.config.autosize = "y";			                   // 甘特图是否自适应
     gantt.config.work_time = true;			                 // 工作日模式
-    gantt.locale.labels.new_task = 'task';		// 新建任务时的默认label（不过如果是自定义的新增模态框的话，就用不到这个）					
+    gantt.locale.labels.new_task = 'task';		// 新建任务时的默认label（不过如果是自定义的新增模态框的话，就用不到这个）	
+    // gantt.config.readonly = true;				 //只读模式：打开后不可以操作甘特图
 
     // gantt.config.order_branch = "marker";			// 允许在同一级别内重排任务，只要是需要重排，order_branch 一定得给 true 或 ‘marker’
     // gantt.config.order_branch_free = true;		// 允许在甘特图全部范围内重排任务，如果只给 order_branch_free，而不给 order_branch，排序也是不会生效的。
+    gantt.config.details_on_dblclick = false;  //禁用双击事件
 
     gantt.plugins({					// 导入插件
-      marker: true					// 日期标识插件，如果不装，之后在配置日期标识线会报错
+      marker: true,					// 日期标识插件，如果不装，之后在配置日期标识线会报错
+      tooltip: true,    //鼠标悬浮在gantt行上显示
     });
 
     gantt.config.layout = { // 布局
@@ -531,8 +538,8 @@ const GanttView = () => {
       name: "text",
       label: "项目名称",
       tree: true,
-      min_width: 200,
-      width: 200
+      min_width: 300,
+      // width: 200
     },
     // {
     //   type: "input",
@@ -654,12 +661,88 @@ const GanttView = () => {
     );
   }
 
+  const openModal = (taskData) => {
+    setTask(taskData);
+    setIsModalOpen(true);
+  };
 
+  const handleOk = () => {
+    if (task) {
+      // 生成唯一 ID
+      const newId = gantt.uid();
+      gantt.addTask(
+        {
+          id: newId,
+          text: task.text,
+          start_date: task.start_date,
+          duration: task.duration,
+          parent: task.parent || 0, // 父任务 ID
+        },
+        task.parent || 0 // 如果是子任务，则添加到父任务下
+      );
+    }
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    setTask(null);
+  };
+
+  const customLightBox = () => {
+    gantt.attachEvent("onTaskCreated", function (task) {
+      console.log("Preventing automatic task creation:", task);
+      return false; // 阻止任务的默认创建
+    });
+
+    // 自定义点击逻辑：点击 Grid 中的 add 列时打开弹框
+    gantt.attachEvent("onGridHeaderClick", function (name, e) {
+      //any custom logic here
+      console.log("onGridHeaderClick", name, e)
+      return true;
+    })
+    gantt.attachEvent("onTaskClick", function (id, e) {
+      console.log("onTaskClick", id, e,)
+      // if (column === "add") {
+      //   // 获取父任务
+      //   console.log(1212121)
+      //   const parentTask = id ? gantt.getTask(id) : null;
+
+      //   // 打开自定义弹框
+      //   openModal({
+      //     text: "",
+      //     start_date: new Date(),
+      //     duration: 1,
+      //     parent: parentTask ? parentTask.id : 0, // 设置父任务 ID
+      //   });
+
+      //   return false; // 阻止默认行为
+      // }
+      // return true;
+    });
+
+    gantt.showLightbox = function (id) {
+      console.log("showLightBox");
+      const parentTask = id ? gantt.getTask(id) : null;
+
+      // 打开弹框，准备添加新任务
+      openModal({
+        text: "",
+        start_date: new Date(),
+        duration: 1,
+        parent: parentTask ? parentTask.id : 0, // 如果有父任务，设置为其子任务
+      });
+    };
+
+    gantt.hideLightbox = function () {
+      handleCancel();
+    };
+  }
 
   useEffect(() => {
     basicConfig()
     setZoomConfig()
     nowDateMarker()
+    customLightBox()
     gantt.config.columns = columns;
     gantt.init(container.current);
     gantt.parse(tasks);
@@ -668,10 +751,20 @@ const GanttView = () => {
       // gantt.destructor();
     };
   }, []);
+
   return (
     <div className='all-box'>
       {changeZoom()}
-      <div className='gantt-box' ref={container} style={{ width: "100%", height: "100%" }}></div>
+      <div
+        className='gantt-box'
+        ref={container}
+        style={{ width: "100%", height: "100%" }}>
+      </div>
+      <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+      </Modal>
     </div>
   );
 }

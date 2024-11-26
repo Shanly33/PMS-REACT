@@ -1,13 +1,13 @@
 .all-box {
-  height: 100% !important;
 
   .gantt-box {
-    min-height: calc(100% - 32px) !important;
+    min-height: 80vh !important;
 
     .gantt_layout_root {
       height: 100% !important;
       width: 100% !important;
 
+      //表格区域样式
       .gantt_layout_cell_border_right {
         height: 100% !important;
 
@@ -32,6 +32,7 @@
 
       .gantt_layout_cell {
 
+        //甘特图区域样式
         .timeline_cell {
           height: calc(100% - 15px) !important;
           width: 100% !important;
@@ -44,6 +45,10 @@
 
               .weekend {
                 background-color: #f3f3f3;
+              }
+
+              .gantt_task_progress {
+                background: #00000050;
               }
 
               .completed_task {
